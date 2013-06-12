@@ -2,8 +2,16 @@
 
 SyntroView is a Syntro application for watching video from a Syntro cloud.
 
+Here is post of SyntroView running [Gumstix, RPis, BeagleBones, Action!][1]
 
-### Dependencies
+You can find some more slightly dated documentation of SyntroView on the 
+[Pansenti][2] site.
+
+[1]: http://pansenti.wordpress.com/2013/06/08/gumstix-rpis-beagles-action/
+[2]: http://www.pansenti.com/wordpress/?page_id=897
+
+
+### Build Dependencies
 
 1. Qt4 or Qt5 development libraries and headers
 2. SyntroCore libraries and headers 
@@ -48,8 +56,8 @@ ignored and discarded by running SyntroView this way
 
 ### Configuration
 
-You should have some Syntro camera applications running to provide video to
-SyntroView.
+You will need some Syntro camera applications running to provide video to Syntro
+for SyntroView to watch.
 
 At least one SyntroControl is required to be running on the local network to
 manage the Syntro cloud. SyntroView can act as the SyntroController if you
@@ -59,11 +67,11 @@ Go to the Action | Basic Setup dialog box and check the 'Enable internal SyntroC
 
 To view Syntro video streams coming from SyntroLCam or other Syntro video 
 applications go to the Settings | Select Streams dialog box. You will need 
-to know the Syntro StreamName for the video you want. 
+to know the Syntro StreamName for each video stream you want to see. 
 
 The StreamName is usually the machine Hostname if it's coming from a SyntroLCam 
 application. You can always find the StreamName in the ini file of the individual 
 Syntro video applications.
 
-Yes. A Syntro cloud directory browser is a big TODO for SyntroView.
+Yes, we know. A Syntro cloud directory browser is a big TODO for SyntroView.
 
