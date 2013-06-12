@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyntroView", "SyntroView.vcxproj", "{64FAF4AA-56A8-4DC7-B115-39FD1ED6B428}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SyntroViewSetup", "SyntroViewSetup\SyntroViewSetup.vdproj", "{990A6AF6-9EC7-4F73-9676-AA4B8446A9C6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+		StaticRelease|Win32 = StaticRelease|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64FAF4AA-56A8-4DC7-B115-39FD1ED6B428}.Debug|Win32.ActiveCfg = Debug|Win32
+		{64FAF4AA-56A8-4DC7-B115-39FD1ED6B428}.Debug|Win32.Build.0 = Debug|Win32
+		{64FAF4AA-56A8-4DC7-B115-39FD1ED6B428}.Release|Win32.ActiveCfg = Release|Win32
+		{64FAF4AA-56A8-4DC7-B115-39FD1ED6B428}.Release|Win32.Build.0 = Release|Win32
+		{64FAF4AA-56A8-4DC7-B115-39FD1ED6B428}.StaticRelease|Win32.ActiveCfg = StaticRelease|Win32
+		{64FAF4AA-56A8-4DC7-B115-39FD1ED6B428}.StaticRelease|Win32.Build.0 = StaticRelease|Win32
+		{990A6AF6-9EC7-4F73-9676-AA4B8446A9C6}.Debug|Win32.ActiveCfg = Debug
+		{990A6AF6-9EC7-4F73-9676-AA4B8446A9C6}.Release|Win32.ActiveCfg = Release
+		{990A6AF6-9EC7-4F73-9676-AA4B8446A9C6}.StaticRelease|Win32.ActiveCfg = StaticRelease
+		{990A6AF6-9EC7-4F73-9676-AA4B8446A9C6}.StaticRelease|Win32.Build.0 = StaticRelease
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
