@@ -19,7 +19,7 @@
 
 #include "ViewSingleCamera.h"
 
-#define	SPACESVIEW_CAMERA_DEADTIME		(7 * SYNTRO_CLOCKS_PER_SEC)
+#define	SPACESVIEW_CAMERA_DEADTIME		(10 * SYNTRO_CLOCKS_PER_SEC)
 
 ViewSingleCamera::ViewSingleCamera(QWidget *parent, QSettings *settings, QString sourceName)
 	: QDialog(parent, Qt::WindowCloseButtonHint | Qt::WindowTitleHint), m_settings(settings)
@@ -53,9 +53,12 @@ void ViewSingleCamera::newImage(SYNTRO_RECORD_VIDEO *videoRecord)
 	if (m_frameQMutex.tryLock()) {
 
 		if (m_frameQ.empty()) {
-			QByteArray frame = QByteArray(reinterpret_cast<const char *>(videoRecord + 1), 
-				convertUC4ToInt(videoRecord->size));
-			
+			VideoFrame frame;
+
+			frame.m_timestamp = videoRecord->recordHeader.timestamp;
+			int size = SyntroUtils::convertUC4ToInt(videoRecord->size);
+			frame.m_image = QByteArray(reinterpret_cast<const char *>(videoRecord + 1), size);
+
 			m_frameQ.enqueue(frame);
 		}
 
@@ -63,33 +66,47 @@ void ViewSingleCamera::newImage(SYNTRO_RECORD_VIDEO *videoRecord)
 	}
 }
 
+void ViewSingleCamera::newImage(VideoFrame frame)
+{
+	m_lastFrame = SyntroClock();
+
+	if (m_frameQMutex.tryLock()) {
+
+		m_frameQ.enqueue(frame);
+		m_frameQMutex.unlock();
+	}
+}
+
 void ViewSingleCamera::timerEvent(QTimerEvent *event)
 {
 	if (event->timerId() == m_displayTimer) {
-		QByteArray frame;
+		VideoFrame vidFrame;
 
 		m_frameQMutex.lock();
 
-		if (!m_frameQ.empty())
-			frame = m_frameQ.dequeue();
-
-		m_frameQMutex.unlock();
-
-		if (!frame.isEmpty())
-			displayImage(frame);
+		if (!m_frameQ.empty()) {
+			vidFrame = m_frameQ.dequeue();
+			m_frameQMutex.unlock();
+			displayImage(&vidFrame);
+		} else {
+			m_frameQMutex.unlock();
+		}
 	}
 	else if (event->timerId() == m_timeoutTimer) {
-		if (syntroTimerExpired(SyntroClock(), m_lastFrame, SPACESVIEW_CAMERA_DEADTIME)) {
+		if (SyntroUtils::syntroTimerExpired(SyntroClock(), m_lastFrame, SPACESVIEW_CAMERA_DEADTIME)) {
 			ui.cameraView->setText("No Image");
 		}
 	}
 }
 
-void ViewSingleCamera::displayImage(QByteArray frame)
+void ViewSingleCamera::displayImage(VideoFrame *vidFrame)
 {
-	QImage img;
-	img.loadFromData(frame, "JPEG");
-	ui.cameraView->setPixmap(QPixmap::fromImage(img.scaled(size(), Qt::KeepAspectRatio)));
+	if (vidFrame->m_image.length() != 0) {
+		QImage img;
+		img.loadFromData(vidFrame->m_image, "JPEG");
+		ui.cameraView->setPixmap(QPixmap::fromImage(img.scaled(size(), Qt::KeepAspectRatio)));
+		repaint();
+	}
 }
 
 void ViewSingleCamera::saveWindowState()

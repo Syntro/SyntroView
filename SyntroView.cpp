@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2012 Pansenti, LLC.
+//  Copyright (c) 2012, 2013 Pansenti, LLC.
 //	
 //  This file is part of Syntro
 //
@@ -35,7 +35,7 @@ SyntroView::SyntroView(QSettings *settings, QWidget *parent)
 
 	m_displayStats = new DisplayStats(this, true, false, m_settings);
 
-	syntroAppInit(m_settings);
+	SyntroUtils::syntroAppInit(m_settings);
 
 	if (m_settings->value(SYNTRO_PARAMS_LOCALCONTROL).toBool()) {
 		m_server = new SyntroServer(m_settings);
@@ -96,7 +96,7 @@ void SyntroView::closeEvent(QCloseEvent *)
 	saveWindowState();
 	if (m_server != NULL)
 		m_server->exitThread();
-	syntroAppExit();
+	SyntroUtils::syntroAppExit();
 }
 
 void SyntroView::timerEvent(QTimerEvent *event)
@@ -143,6 +143,7 @@ void SyntroView::imageMousePress(int id)
 
 	for (int i = 0; i < m_windowList.count(); i++)
 		m_windowList[i]->setSelected(i == id);
+	m_singleCamera->newImage(m_windowList[id]->m_videoFrame);
 }
 
 void SyntroView::imageDoubleClick(int id)
@@ -165,6 +166,7 @@ void SyntroView::imageDoubleClick(int id)
 
 	m_singleCameraId = id;
 	m_windowList[id]->setSelected(true);
+	m_singleCamera->newImage(m_windowList[id]->m_videoFrame);
 }
 
 void SyntroView::onShowName()

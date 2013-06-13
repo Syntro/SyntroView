@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2012 Pansenti, LLC.
+//  Copyright (c) 2012, 2013 Pansenti, LLC.
 //	
 //  This file is part of Syntro
 //
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
 QSettings *loadSettings(QStringList arglist)
 {
-	QSettings *settings = loadStandardSettings(PRODUCT_TYPE, arglist);
+	QSettings *settings = SyntroUtils::loadStandardSettings(PRODUCT_TYPE, arglist);
 
 	settings->setValue(SYNTRO_PARAMS_COMPTYPE, PRODUCT_TYPE);
 
@@ -58,10 +58,7 @@ QSettings *loadSettings(QStringList arglist)
 		settings->beginWriteArray(SYNTRO_PARAMS_STREAM_SOURCES);
 
 		settings->setArrayIndex(0);
-		settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, "Video");
-
-		settings->setArrayIndex(1);
-		settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, "Video2");
+		settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, "source");
 
 		settings->endArray();
 	}

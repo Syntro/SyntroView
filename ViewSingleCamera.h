@@ -25,6 +25,7 @@
 
 #include "ui_ViewSingleCamera.h"
 #include "SyntroLib.h"
+#include "ImageWindow.h"
 
 class ViewSingleCamera : public QDialog
 {
@@ -35,6 +36,7 @@ public:
 
 	void setSourceName(QString sourceName);
 	void newImage(SYNTRO_RECORD_VIDEO *videoRecord);
+	void newImage(VideoFrame frame);
 
 signals:
 	void closed();
@@ -44,7 +46,7 @@ protected:
 	void closeEvent(QCloseEvent *event);
 
 private:
-	void displayImage(QByteArray frame);
+	void displayImage(VideoFrame *vidFrame);
 	void saveWindowState();
 	void restoreWindowState();
 
@@ -54,7 +56,7 @@ private:
 	int m_displayTimer;
 	int m_timeoutTimer;
 	QMutex m_frameQMutex;
-	QQueue<QByteArray> m_frameQ;
+	QQueue<VideoFrame> m_frameQ;
 	qint64 m_lastFrame;
 	QLabel *m_cameraView;
 };

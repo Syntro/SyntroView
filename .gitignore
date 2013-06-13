@@ -3,7 +3,9 @@ debug/
 release/
 Output/
 GeneratedFiles/
+ipch/
 *.log.*
+*.sdf
 *.exe
 *.lib
 *.ilk

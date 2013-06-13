@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2012 Pansenti, LLC.
+//  Copyright (c) 2012, 2013 Pansenti, LLC.
 //	
 //  This file is part of Syntro
 //
@@ -61,7 +61,7 @@ void ViewClient::addStreams()
 	
 	loadStreamSources(SYNTRO_PARAMS_STREAM_SOURCES, SYNTRO_PARAMS_STREAM_SOURCE);
 	for (int i = 0; i < m_sources.count(); i++) {
-		port = clientAddService(m_sources.at(i), SERVICETYPE_MULTICAST, false);
+		port = clientAddService(SyntroUtils::insertStreamNameInPath(m_sources.at(i), SYNTRO_STREAMNAME_VIDEO), SERVICETYPE_MULTICAST, false);
 		m_ports.append(port);
 		logDebug(QString("Port = %1 count = %2").arg(port).arg(m_ports.size()));
 		emit setServiceName(i, m_sources.at(i));

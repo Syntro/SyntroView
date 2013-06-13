@@ -20,7 +20,7 @@
 #include <QtGui>
 #include "ImageWindow.h"
 
-#define	SPACESVIEW_CAMERA_DEADTIME		(7 * SYNTRO_CLOCKS_PER_SEC)
+#define	SPACESVIEW_CAMERA_DEADTIME		(10 * SYNTRO_CLOCKS_PER_SEC)
 
 
 ImageWindow::ImageWindow(int id, QString sourceName, bool showName, bool showDate, 
@@ -38,7 +38,7 @@ ImageWindow::ImageWindow(int id, QString sourceName, bool showName, bool showDat
 	m_idle = true;
 
 	m_lastFrame = SyntroClock();
-	setSyntroTimestamp(&m_displayTimestamp);
+	SyntroUtils::setSyntroTimestamp(&m_displayTimestamp);
 
 	setAlignment(Qt::AlignCenter);
 
@@ -120,7 +120,7 @@ void ImageWindow::newImage(SYNTRO_RECORD_VIDEO *videoRecord)
 			VideoFrame frame;
 
 			frame.m_timestamp = videoRecord->recordHeader.timestamp;
-			int size = convertUC4ToInt(videoRecord->size);
+			int size = SyntroUtils::convertUC4ToInt(videoRecord->size);
 			frame.m_image = QByteArray(reinterpret_cast<const char *>(videoRecord + 1), size);
 
 			m_frameQ.enqueue(frame);
@@ -133,20 +133,20 @@ void ImageWindow::newImage(SYNTRO_RECORD_VIDEO *videoRecord)
 void ImageWindow::timerEvent(QTimerEvent *event)
 {
 	if (event->timerId() == m_displayTimer) {
-		VideoFrame vidFrame;
+		
 
 		m_frameQMutex.lock();
 
-		if (!m_frameQ.empty())
-			vidFrame = m_frameQ.dequeue();
-
-		m_frameQMutex.unlock();
-
-		if (!vidFrame.m_image.isEmpty())
-			displayImage(&vidFrame);
+		if (!m_frameQ.empty()) {
+			VideoFrame videoFrame = m_frameQ.dequeue();
+			m_frameQMutex.unlock();
+			displayImage(&videoFrame);
+		} else {
+			m_frameQMutex.unlock();
+		}
 	}
 	else if (event->timerId() == m_timeoutTimer) {
-		if (syntroTimerExpired(SyntroClock(), m_lastFrame, SPACESVIEW_CAMERA_DEADTIME)) {
+		if (SyntroUtils::syntroTimerExpired(SyntroClock(), m_lastFrame, SPACESVIEW_CAMERA_DEADTIME)) {
 			m_idle = true;
 			update();
 		}
@@ -155,9 +155,11 @@ void ImageWindow::timerEvent(QTimerEvent *event)
 
 void ImageWindow::displayImage(VideoFrame *vidFrame)
 {
-	QImage img;
-	img.loadFromData(vidFrame->m_image, "JPEG");
-	setPixmap(QPixmap::fromImage(img.scaled(size(), Qt::KeepAspectRatio)));
+	if (vidFrame->m_image.length() != 0) {
+		m_currentImage.loadFromData(vidFrame->m_image, "JPEG");
+		setPixmap(QPixmap::fromImage(m_currentImage.scaled(size(), Qt::KeepAspectRatio)));
+		m_videoFrame = *vidFrame;
+	}
 
 	m_displayTimestamp = vidFrame->m_timestamp;
 	repaint();
@@ -202,20 +204,20 @@ void ImageWindow::paintEvent(QPaintEvent *event)
 		if (dr.width() < 160) {
 			// only room for one, choose time over date
 			if (m_showDate && m_showTime)
-				timestamp = timestampToTimeString(&m_displayTimestamp);
+				timestamp = SyntroUtils::timestampToTimeString(&m_displayTimestamp);
 			else if (m_showDate)
-				timestamp = timestampToDateString(&m_displayTimestamp);
+				timestamp = SyntroUtils::timestampToDateString(&m_displayTimestamp);
 			else
-				timestamp = timestampToTimeString(&m_displayTimestamp);
+				timestamp = SyntroUtils::timestampToTimeString(&m_displayTimestamp);
 		}
 		else if (!m_showDate) {
-			timestamp = timestampToTimeString(&m_displayTimestamp);
+			timestamp = SyntroUtils::timestampToTimeString(&m_displayTimestamp);
 		}
 		else if (!m_showTime) {
-			timestamp = timestampToDateString(&m_displayTimestamp);
+			timestamp = SyntroUtils::timestampToDateString(&m_displayTimestamp);
 		}
 		else {
-			timestamp = timestampToString(&m_displayTimestamp);
+			timestamp = SyntroUtils::timestampToString(&m_displayTimestamp);
 		}
 
 		painter.drawText(dr.left() + 4, dr.bottom() - 2, timestamp);

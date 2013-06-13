@@ -51,6 +51,8 @@ public:
 	bool selected();
 	void setSelected(bool select);
 
+	VideoFrame m_videoFrame;
+
 signals:
 	void imageMousePress(int id);
 	void imageDoubleClick(int id);
@@ -79,6 +81,8 @@ private:
 	QQueue<VideoFrame> m_frameQ;
 	SYNTRO_TIMESTAMP m_displayTimestamp;
 	qint64 m_lastFrame;
+
+	QImage m_currentImage;
 };
 
 #endif // IMAGEWINDOW_H
