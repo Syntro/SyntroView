@@ -36,7 +36,7 @@ class SyntroView : public QMainWindow
 	Q_OBJECT
 
 public:
-	SyntroView(QSettings *settings, QWidget *parent = 0);
+	SyntroView();
 
 public slots:
 	void onStats();
@@ -75,7 +75,6 @@ private:
 
 	SyntroServer *m_server;
 	ViewClient *m_client;
-	QSettings *m_settings;
 	QGridLayout *m_grid;
 	QList<ImageWindow *> m_windowList;
 	DisplayStats *m_displayStats;

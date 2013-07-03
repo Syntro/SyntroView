@@ -46,6 +46,7 @@ public:
 	int	m_TXByteTemp;				// for rate calculation
 	unsigned int m_TXRecordRate;	// records per second
 	unsigned int m_TXByteRate;		// bytes per second
+
 };
 
 

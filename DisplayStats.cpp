@@ -22,9 +22,10 @@
 
 #define STAT_UPDATE_INTERVAL_SECS 2
 
-DisplayStats::DisplayStats(QWidget *parent, bool receive, bool transmit, QSettings *settings)
-	: QDialog(parent), m_settings(settings)
+DisplayStats::DisplayStats(QWidget *parent, bool receive, bool transmit)
+	: QDialog(parent)
 {
+	m_logTag = "DisplayStats";
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
 	m_RX = receive;
@@ -153,18 +154,22 @@ void DisplayStats::transmitData(int slot, int bytes)
 
 void DisplayStats::saveDialogState()
 {
-	if (m_settings) {
-		m_settings->beginGroup("StatsDialog");
-		m_settings->setValue("Geometry", saveGeometry());
-		m_settings->endGroup();
-	}
+	QSettings *settings = SyntroUtils::getSettings();
+
+	settings->beginGroup("StatsDialog");
+	settings->setValue("Geometry", saveGeometry());
+	settings->endGroup();
+	
+	delete settings;
 }
 
 void DisplayStats::restoreDialogState()
 {
-	if (m_settings) {
-		m_settings->beginGroup("StatsDialog");
-		restoreGeometry(m_settings->value("Geometry").toByteArray());
-		m_settings->endGroup();
-	}
+	QSettings *settings = SyntroUtils::getSettings();
+
+	settings->beginGroup("StatsDialog");
+	restoreGeometry(settings->value("Geometry").toByteArray());
+	settings->endGroup();
+	
+	delete settings;
 }

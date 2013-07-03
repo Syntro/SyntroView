@@ -36,7 +36,7 @@ class SelectStreamsDlg : public QDialog
 	Q_OBJECT
 
 public:
-	SelectStreamsDlg(QWidget *parent, QSettings *settings);
+	SelectStreamsDlg(QWidget *parent);
 	~SelectStreamsDlg();
 
 public slots:
@@ -51,7 +51,6 @@ private:
 	void layoutWindow();
 	void insertTableRow(int row, QString value);
 
-	QSettings *m_settings;
 	QTableWidget *m_streamTable;
 	QDialogButtonBox *m_buttons0;
 	QDialogButtonBox *m_buttons1;

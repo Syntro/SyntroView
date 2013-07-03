@@ -29,7 +29,7 @@ class ViewClient : public Endpoint
 	Q_OBJECT
 
 public:
-	ViewClient(QObject *parent, QSettings *settings);
+	ViewClient(QObject *parent);
 
 	QStringList streamSources();
 

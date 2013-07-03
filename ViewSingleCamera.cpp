@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2012 Pansenti, LLC.
+//  Copyright (c) 2012, 2013 Pansenti, LLC.
 //	
 //  This file is part of Syntro
 //
@@ -21,8 +21,8 @@
 
 #define	SPACESVIEW_CAMERA_DEADTIME		(10 * SYNTRO_CLOCKS_PER_SEC)
 
-ViewSingleCamera::ViewSingleCamera(QWidget *parent, QSettings *settings, QString sourceName)
-	: QDialog(parent, Qt::WindowCloseButtonHint | Qt::WindowTitleHint), m_settings(settings)
+ViewSingleCamera::ViewSingleCamera(QWidget *parent, QString sourceName)
+	: QDialog(parent, Qt::WindowCloseButtonHint | Qt::WindowTitleHint)
 {
 	ui.setupUi(this);
 
@@ -111,18 +111,22 @@ void ViewSingleCamera::displayImage(VideoFrame *vidFrame)
 
 void ViewSingleCamera::saveWindowState()
 {
-	if (m_settings) {
-		m_settings->beginGroup("SingleCameraView");
-		m_settings->setValue("Geometry", saveGeometry());
-		m_settings->endGroup();
-	}
+	QSettings *settings = SyntroUtils::getSettings();
+	
+	settings->beginGroup("SingleCameraView");
+	settings->setValue("Geometry", saveGeometry());
+	settings->endGroup();
+	
+	delete settings;
 }
 
 void ViewSingleCamera::restoreWindowState()
 {
-	if (m_settings) {
-		m_settings->beginGroup("SingleCameraView");
-		restoreGeometry(m_settings->value("Geometry").toByteArray());
-		m_settings->endGroup();
-	}
+	QSettings *settings = SyntroUtils::getSettings();
+	
+	settings->beginGroup("SingleCameraView");
+		restoreGeometry(settings->value("Geometry").toByteArray());
+	settings->endGroup();
+	
+	delete settings;
 }

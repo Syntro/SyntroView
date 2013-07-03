@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2012 Pansenti, LLC.
+//  Copyright (c) 2012, 2013 Pansenti, LLC.
 //	
 //  This file is part of Syntro
 //
@@ -36,7 +36,8 @@ class ImageWindow : public QLabel
 	Q_OBJECT
 
 public:
-	ImageWindow(int id, QString sourceName, bool showName, bool showDate, bool showTime, QColor textColor, QWidget *parent = 0);
+	ImageWindow(int id, QString sourceName, bool showName, 
+		bool showDate, bool showTime, QColor textColor, QWidget *parent = 0);
 	virtual ~ImageWindow();
 
 	QString sourceName();

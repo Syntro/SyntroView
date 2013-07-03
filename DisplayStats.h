@@ -32,7 +32,7 @@ class DisplayStats : public QDialog
 	Q_OBJECT
 
 public:
-	DisplayStats(QWidget *parent, bool receive, bool transmit, QSettings *settings = NULL);
+	DisplayStats(QWidget *parent, bool receive, bool transmit);
 	~DisplayStats();
 
 public slots:
@@ -50,7 +50,6 @@ private:
 	void saveDialogState();
 	void restoreDialogState();
 
-	QSettings *m_settings;
 	int	m_timer;
 	bool m_RX;
 	bool m_TX;
@@ -58,6 +57,8 @@ private:
 	QMutex m_dataMutex;
 
 	Ui::CDisplayStats ui;
+
+	QString m_logTag;
 };
 
 #endif // DISPLAYSTATS_H

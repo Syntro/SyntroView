@@ -23,8 +23,8 @@
 #include "SyntroView.h"
 #include "SelectStreamsDlg.h"
 
-SelectStreamsDlg::SelectStreamsDlg(QWidget *parent, QSettings *settings)
-	: QDialog(parent), m_settings(settings)
+SelectStreamsDlg::SelectStreamsDlg(QWidget *parent)
+	: QDialog(parent)
 {
 	layoutWindow();
 	setWindowTitle("Stream selection");
@@ -42,37 +42,41 @@ void SelectStreamsDlg::onOk()
 {
 	int settingsRow;
 
+	QSettings *settings = SyntroUtils::getSettings();
+
 	if (!m_changed) {
-		int	size = m_settings->beginReadArray(SYNTRO_PARAMS_STREAM_SOURCES);
+		int	size = settings->beginReadArray(SYNTRO_PARAMS_STREAM_SOURCES);
 
 		m_changed = size != m_streamTable->rowCount();		// entry must have been added or deleted
 		if (!m_changed) {
 			for (int row = 0; row < size; row++) {
-				m_settings->setArrayIndex(row);
-				if (((QLineEdit *)(m_streamTable->cellWidget(row, 1)))->text() != m_settings->value(SYNTRO_PARAMS_STREAM_SOURCE).toString()) {
+				settings->setArrayIndex(row);
+				if (((QLineEdit *)(m_streamTable->cellWidget(row, 1)))->text() != settings->value(SYNTRO_PARAMS_STREAM_SOURCE).toString()) {
 					m_changed = true;
 					break;
 				}
 			}
 		}
-		m_settings->endArray();
+		settings->endArray();
 	}
 	if (m_changed) {
-		m_settings->remove(SYNTRO_PARAMS_STREAM_SOURCES);	// clear old entries
+		settings->remove(SYNTRO_PARAMS_STREAM_SOURCES);	// clear old entries
 		settingsRow = 0;
-		m_settings->beginWriteArray(SYNTRO_PARAMS_STREAM_SOURCES);
+		settings->beginWriteArray(SYNTRO_PARAMS_STREAM_SOURCES);
 		for (int row = 0; row < m_streamTable->rowCount(); row++) {
-			m_settings->setArrayIndex(settingsRow);
+			settings->setArrayIndex(settingsRow);
 			if (((QLineEdit *)(m_streamTable->cellWidget(row, 1)))->text().length() > 0) {
-				m_settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, ((QLineEdit *)(m_streamTable->cellWidget(row, 1)))->text());
+				settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, ((QLineEdit *)(m_streamTable->cellWidget(row, 1)))->text());
 				settingsRow++;
 			}
 		}
-		m_settings->endArray();
+		settings->endArray();
+		delete settings;
 		accept();
 		emit newStreams();
 		return;
 	} else {
+		delete settings;
 		reject();
 	}
 
@@ -104,20 +108,21 @@ void SelectStreamsDlg::layoutWindow()
 
 	verticalLayout->addWidget(m_streamTable);
 
+	QSettings *settings = SyntroUtils::getSettings();
 
-	int	size = m_settings->beginReadArray(SYNTRO_PARAMS_STREAM_SOURCES);
+	int	size = settings->beginReadArray(SYNTRO_PARAMS_STREAM_SOURCES);
 	for (int row = 0; row < size; row++) {
-		m_settings->setArrayIndex(row);
-		insertTableRow(row, m_settings->value(SYNTRO_PARAMS_STREAM_SOURCE).toString());
+		settings->setArrayIndex(row);
+		insertTableRow(row, settings->value(SYNTRO_PARAMS_STREAM_SOURCE).toString());
 	}
-	m_settings->endArray();
+	settings->endArray();
 
 	m_buttons0 = new QDialogButtonBox(Qt::Horizontal);
 	m_buttons0->setCenterButtons(true);
 
-	m_buttonAddRow = m_buttons0->addButton("Add new stream(s) before selections", QDialogButtonBox::ActionRole);
-	m_buttonAppendRow = m_buttons0->addButton("Add new stream at end", QDialogButtonBox::ActionRole);
-	m_buttonDeleteRow = m_buttons0->addButton("Delete selected stream(s)", QDialogButtonBox::ActionRole);
+	m_buttonAddRow = m_buttons0->addButton("Insert", QDialogButtonBox::ActionRole);
+	m_buttonAppendRow = m_buttons0->addButton("Append", QDialogButtonBox::ActionRole);
+	m_buttonDeleteRow = m_buttons0->addButton("Delete", QDialogButtonBox::ActionRole);
 	verticalLayout->addWidget(m_buttons0);
 
 	m_buttons1 = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);
@@ -126,6 +131,8 @@ void SelectStreamsDlg::layoutWindow()
 
 	connect(m_buttons0, SIGNAL(clicked(QAbstractButton *)), this, SLOT(buttonClicked(QAbstractButton *))); 
 	connect(m_buttons1, SIGNAL(clicked(QAbstractButton *)), this, SLOT(buttonClicked(QAbstractButton *))); 
+
+	delete settings;
 }
 
 void SelectStreamsDlg::buttonClicked(QAbstractButton *button)

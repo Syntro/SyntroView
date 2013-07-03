@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2012 Pansenti, LLC.
+//  Copyright (c) 2012, 2013 Pansenti, LLC.
 //	
 //  This file is part of Syntro
 //
@@ -32,7 +32,7 @@ class ViewSingleCamera : public QDialog
 	Q_OBJECT
 
 public:
-	ViewSingleCamera(QWidget *parent, QSettings *settings, QString sourceName);
+	ViewSingleCamera(QWidget *parent, QString sourceName);
 
 	void setSourceName(QString sourceName);
 	void newImage(SYNTRO_RECORD_VIDEO *videoRecord);
@@ -52,7 +52,6 @@ private:
 
 	Ui::ViewSingleCamera ui;
 
-	QSettings *m_settings;
 	int m_displayTimer;
 	int m_timeoutTimer;
 	QMutex m_frameQMutex;

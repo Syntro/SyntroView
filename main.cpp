@@ -22,7 +22,7 @@
 
 #include "SyntroUtils.h"
 
-QSettings *loadSettings(QStringList arglist);
+void loadSettings(QStringList arglist);
 
 
 int main(int argc, char *argv[])
@@ -33,9 +33,9 @@ int main(int argc, char *argv[])
 	a.addLibraryPath(QDir::currentPath() + "/plugins");
 #endif
 
-	QSettings *settings = loadSettings(a.arguments());
+	SyntroUtils::loadStandardSettings(PRODUCT_TYPE, a.arguments());
 
-	SyntroView *w = new SyntroView(settings);
+	SyntroView *w = new SyntroView();
 
 	w->show();
 
@@ -43,25 +43,3 @@ int main(int argc, char *argv[])
 }
 
 
-QSettings *loadSettings(QStringList arglist)
-{
-	QSettings *settings = SyntroUtils::loadStandardSettings(PRODUCT_TYPE, arglist);
-
-	settings->setValue(SYNTRO_PARAMS_COMPTYPE, PRODUCT_TYPE);
-
-	//	check to see if the array of sources exists
-
-	int	nSize = settings->beginReadArray(SYNTRO_PARAMS_STREAM_SOURCES);
-	settings->endArray();
-
-	if (nSize == 0) {
-		settings->beginWriteArray(SYNTRO_PARAMS_STREAM_SOURCES);
-
-		settings->setArrayIndex(0);
-		settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, "source");
-
-		settings->endArray();
-	}
-
-	return settings;
-}

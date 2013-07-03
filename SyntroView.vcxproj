@@ -108,7 +108,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(IntDir)\$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;..\..\SyntroCore\SyntroLib\StaticRelease;..\..\SyntroCore\SyntroGUI\StaticRelease;..\..\SyntroCore\SyntroControlLib\StaticRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;..\SyntroCore\SyntroLib\StaticRelease;..\SyntroCore\SyntroGUI\StaticRelease;..\SyntroCore\SyntroControlLib\StaticRelease;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>SyntroControlLib.lib;SyntroLib.lib;SyntroGUI.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Network.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>

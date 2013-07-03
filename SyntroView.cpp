@@ -25,26 +25,29 @@
 
 #define GRID_SPACING 3
 
-SyntroView::SyntroView(QSettings *settings, QWidget *parent)
-	: QMainWindow(parent), m_settings(settings)
+SyntroView::SyntroView()
+	: QMainWindow()
 {
 	ui.setupUi(this);
 
 	m_singleCameraId = -1;
 	m_singleCamera = NULL;
 
-	m_displayStats = new DisplayStats(this, true, false, m_settings);
+	m_displayStats = new DisplayStats(this, true, false);
 
-	SyntroUtils::syntroAppInit(m_settings);
+	SyntroUtils::syntroAppInit();
 
-	if (m_settings->value(SYNTRO_PARAMS_LOCALCONTROL).toBool()) {
-		m_server = new SyntroServer(m_settings);
+	QSettings *settings = SyntroUtils::getSettings();
+
+	if (settings->value(SYNTRO_PARAMS_LOCALCONTROL).toBool()) {
+		m_server = new SyntroServer();
 		m_server->resumeThread();
 	} else {
 		m_server = NULL;
 	}
+	delete settings;
 
-	m_client = new ViewClient(this, m_settings);
+	m_client = new ViewClient(this);
 
 	connect(ui.actionExit, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -65,8 +68,8 @@ SyntroView::SyntroView(QSettings *settings, QWidget *parent)
 	initMenus();
 
 	setWindowTitle(QString("%1 - %2")
-		.arg(m_settings->value(SYNTRO_PARAMS_APPNAME).toString())
-		.arg(m_settings->value(SYNTRO_PARAMS_COMPTYPE).toString()));
+		.arg(SyntroUtils::getAppType())
+		.arg(SyntroUtils::getAppName()));
 
 	m_enableServicesTimer = -1;
 }
@@ -152,7 +155,7 @@ void SyntroView::imageDoubleClick(int id)
 		return;
 
 	if (!m_singleCamera) {
-		m_singleCamera = new ViewSingleCamera(NULL, m_settings, m_windowList[id]->sourceName());
+		m_singleCamera = new ViewSingleCamera(NULL, m_windowList[id]->sourceName());
 
 		if (!m_singleCamera)
 			return;
@@ -305,64 +308,56 @@ void SyntroView::initMenus()
 
 void SyntroView::saveWindowState()
 {
-	if (m_settings) {
-		m_settings->beginGroup("Window");
-		m_settings->setValue("Geometry", saveGeometry());
-		m_settings->setValue("State", saveState());
-		m_settings->setValue("showName", m_showName);
-		m_settings->setValue("showDate", m_showDate);
-		m_settings->setValue("showTime", m_showTime);
-		m_settings->setValue("textColor", m_textColor);
-		m_settings->endGroup();
-	}
+	QSettings *settings = SyntroUtils::getSettings();
+
+	settings->beginGroup("Window");
+	settings->setValue("Geometry", saveGeometry());
+	settings->setValue("State", saveState());
+	settings->setValue("showName", m_showName);
+	settings->setValue("showDate", m_showDate);
+	settings->setValue("showTime", m_showTime);
+	settings->setValue("textColor", m_textColor);
+	settings->endGroup();
+	
+	delete settings;
 }
 
 void SyntroView::restoreWindowState()
 {
-	if (m_settings) {
-		m_settings->beginGroup("Window");
-		restoreGeometry(m_settings->value("Geometry").toByteArray());
-		restoreState(m_settings->value("State").toByteArray());
+	QSettings *settings = SyntroUtils::getSettings();
 
-		if (m_settings->contains("showName")) 
-			m_showName = m_settings->value("showName").toBool();
-		else
-			m_showName = true;
+	settings->beginGroup("Window");
+	restoreGeometry(settings->value("Geometry").toByteArray());
+	restoreState(settings->value("State").toByteArray());
 
-		if (m_settings->contains("showDate"))
-			m_showDate = m_settings->value("showDate").toBool();
-		else
-			m_showDate = true;
-
-		if (m_settings->contains("showTime"))
-			m_showTime = m_settings->value("showTime").toBool();
-		else
-			m_showTime = true;
-
-		if (m_settings->contains("textColor"))
-			m_textColor = m_settings->value("textColor").value<QColor>();
+	m_showName = settings->value("showName", true).toBool();
+	m_showDate = settings->value("showDate", true).toBool();
+	m_showTime = settings->value("showTime", true).toBool();
+	if (settings->contains("textColor"))
+			m_textColor = settings->value("textColor").value<QColor>();
 		else
 			m_textColor = Qt::white;
 
-		m_settings->endGroup();
-	}
+	settings->endGroup();
+	
+	delete settings;
 }
 
 void SyntroView::onAbout()
 {
-	SyntroAbout *dlg = new SyntroAbout(this, m_settings);
+	SyntroAbout *dlg = new SyntroAbout();
 	dlg->show();
 }
 
 void SyntroView::onBasicSetup()
 {
-	BasicSetupDlg *dlg = new BasicSetupDlg(this, m_settings);
+	BasicSetupDlg *dlg = new BasicSetupDlg(this);
 	dlg->show();
 }
 
 void SyntroView::onSelectStreams()
 {
-	SelectStreamsDlg *dlg = new SelectStreamsDlg(this, m_settings);
+	SelectStreamsDlg *dlg = new SelectStreamsDlg(this);
 	connect(dlg, SIGNAL(newStreams()), this, SLOT(newStreams()), Qt::QueuedConnection);
 	dlg->show();
 }

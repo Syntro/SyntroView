@@ -20,8 +20,8 @@
 #include "ViewClient.h"
 #include "SyntroLib.h"
 
-ViewClient::ViewClient(QObject *parent, QSettings *settings)
-	: Endpoint(parent, settings, VIEWCLIENT_BACKGROUND_INTERVAL)
+ViewClient::ViewClient(QObject *parent)
+	: Endpoint(VIEWCLIENT_BACKGROUND_INTERVAL, COMPTYPE_VIEW)
 {
 }
 
@@ -82,14 +82,34 @@ void ViewClient::deleteStreams()
 
 void ViewClient::loadStreamSources(QString group, QString src)
 {
-	int count = m_settings->beginReadArray(group);
+
+	//	Check to see if the array of sources exists. If not, create
+
+	QSettings *settings = SyntroUtils::getSettings();
+
+	int	nSize = settings->beginReadArray(SYNTRO_PARAMS_STREAM_SOURCES);
+	settings->endArray();
+
+	if (nSize == 0) {
+		settings->beginWriteArray(SYNTRO_PARAMS_STREAM_SOURCES);
+
+		settings->setArrayIndex(0);
+		settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, "source");
+
+		settings->endArray();
+	}
+
+
+	int count = settings->beginReadArray(group);
 
 	for (int i = 0; i < count; i++) {
-		m_settings->setArrayIndex(i);
+		settings->setArrayIndex(i);
 
-		QString s = m_settings->value(src).toString();
+		QString s = settings->value(src).toString();
 		m_sources.append(s);
 	}
 
-	m_settings->endArray();
+	settings->endArray();
+
+	delete settings;
 }
