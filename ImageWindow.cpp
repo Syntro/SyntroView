@@ -38,7 +38,8 @@ ImageWindow::ImageWindow(int id, QString sourceName, bool showName, bool showDat
 	m_idle = true;
 
 	m_lastFrame = SyntroClock();
-	SyntroUtils::setSyntroTimestamp(&m_displayTimestamp);
+	m_displayDate = QDate::currentDate();
+	m_displayTime = QTime::currentTime();
 
 	setAlignment(Qt::AlignCenter);
 
@@ -119,7 +120,7 @@ void ImageWindow::newImage(SYNTRO_RECORD_VIDEO *videoRecord)
 		if (m_frameQ.empty()) {
 			VideoFrame frame;
 
-			frame.m_timestamp = videoRecord->recordHeader.timestamp;
+			frame.m_timestamp = SyntroUtils::convertUC8ToInt64(videoRecord->recordHeader.timestamp);
 			int size = SyntroUtils::convertUC4ToInt(videoRecord->size);
 			frame.m_image = QByteArray(reinterpret_cast<const char *>(videoRecord + 1), size);
 
@@ -161,7 +162,9 @@ void ImageWindow::displayImage(VideoFrame *vidFrame)
 		m_videoFrame = *vidFrame;
 	}
 
-	m_displayTimestamp = vidFrame->m_timestamp;
+	QDateTime dt = QDateTime::fromMSecsSinceEpoch(vidFrame->m_timestamp);
+	m_displayDate = dt.date();
+	m_displayTime = dt.time();
 	repaint();
 }
 
@@ -169,6 +172,8 @@ void ImageWindow::paintEvent(QPaintEvent *event)
  {
 	QString timestamp;
 	QLabel::paintEvent(event);
+    QString timeFormat("hh:mm:ss:zzz");
+    QString dateFormat("ddd MMMM d yyyy");
 
 	QPainter painter(this);
 
@@ -204,20 +209,20 @@ void ImageWindow::paintEvent(QPaintEvent *event)
 		if (dr.width() < 160) {
 			// only room for one, choose time over date
 			if (m_showDate && m_showTime)
-				timestamp = SyntroUtils::timestampToTimeString(&m_displayTimestamp);
+                timestamp = m_displayTime.toString(timeFormat);
 			else if (m_showDate)
-				timestamp = SyntroUtils::timestampToDateString(&m_displayTimestamp);
+                timestamp = m_displayDate.toString(dateFormat);
 			else
-				timestamp = SyntroUtils::timestampToTimeString(&m_displayTimestamp);
+                timestamp = m_displayTime.toString(timeFormat);
 		}
 		else if (!m_showDate) {
-			timestamp = SyntroUtils::timestampToTimeString(&m_displayTimestamp);
+            timestamp = m_displayTime.toString(timeFormat);
 		}
 		else if (!m_showTime) {
-			timestamp = SyntroUtils::timestampToDateString(&m_displayTimestamp);
+            timestamp = m_displayDate.toString(dateFormat);
 		}
 		else {
-			timestamp = SyntroUtils::timestampToString(&m_displayTimestamp);
+            timestamp = m_displayDate.toString(dateFormat) + " " + m_displayTime.toString(timeFormat);
 		}
 
 		painter.drawText(dr.left() + 4, dr.bottom() - 2, timestamp);

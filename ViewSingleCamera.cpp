@@ -55,7 +55,7 @@ void ViewSingleCamera::newImage(SYNTRO_RECORD_VIDEO *videoRecord)
 		if (m_frameQ.empty()) {
 			VideoFrame frame;
 
-			frame.m_timestamp = videoRecord->recordHeader.timestamp;
+			frame.m_timestamp = SyntroUtils::convertUC8ToInt64(videoRecord->recordHeader.timestamp);
 			int size = SyntroUtils::convertUC4ToInt(videoRecord->size);
 			frame.m_image = QByteArray(reinterpret_cast<const char *>(videoRecord + 1), size);
 

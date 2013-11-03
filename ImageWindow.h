@@ -27,7 +27,7 @@
 class VideoFrame
 {
 public:
-	SYNTRO_TIMESTAMP m_timestamp;
+	qint64 m_timestamp;
 	QByteArray m_image;
 };
 
@@ -80,7 +80,8 @@ private:
 	int m_timeoutTimer;
 	QMutex m_frameQMutex;
 	QQueue<VideoFrame> m_frameQ;
-	SYNTRO_TIMESTAMP m_displayTimestamp;
+	QDate m_displayDate;
+	QTime m_displayTime;
 	qint64 m_lastFrame;
 
 	QImage m_currentImage;
