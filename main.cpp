@@ -18,28 +18,19 @@
 //
 
 #include "SyntroView.h"
-#include <QApplication>
+#include <qapplication.h>
 
 #include "SyntroUtils.h"
-
-void loadSettings(QStringList arglist);
 
 
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-
-#ifdef Q_OS_WIN
-	a.addLibraryPath(QDir::currentPath() + "/plugins");
-#endif
-
 	SyntroUtils::loadStandardSettings(PRODUCT_TYPE, a.arguments());
 
-	SyntroView *w = new SyntroView();
+    SyntroView *w = new SyntroView();
 
 	w->show();
 
 	return a.exec();
 }
-
-

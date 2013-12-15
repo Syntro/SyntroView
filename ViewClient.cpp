@@ -17,99 +17,74 @@
 //  along with Syntro.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include "SyntroView.h"
 #include "ViewClient.h"
-#include "SyntroLib.h"
+#include "AVMuxDecode.h"
 
-ViewClient::ViewClient(QObject *parent)
-	: Endpoint(VIEWCLIENT_BACKGROUND_INTERVAL, COMPTYPE_VIEW)
+#define	VIEWCLIENT_BACKGROUND_INTERVAL (SYNTRO_CLOCKS_PER_SEC/100)
+
+
+ViewClient::ViewClient()
+    : Endpoint(VIEWCLIENT_BACKGROUND_INTERVAL, "ViewClient")
 {
 }
 
-QStringList ViewClient::streamSources()
+void ViewClient::appClientConnected()
 {
-	return m_sources;
+	emit clientConnected();
 }
 
-void ViewClient::appClientInit()
+void ViewClient::appClientClosed()
 {
-	addStreams();
+	emit clientClosed();
+}
+
+void ViewClient::requestDir()
+{
+	requestDirectory();
+}
+
+void ViewClient::appClientReceiveDirectory(QStringList directory)
+{
+	emit dirResponse(directory);
+}
+
+void ViewClient::enableService(AVSource *avSource)
+{
+	QString service = SyntroUtils::insertStreamNameInPath(avSource->name(), SYNTRO_STREAMNAME_AVMUX);
+
+	int servicePort = clientAddService(service, SERVICETYPE_MULTICAST, false);
+
+	if (servicePort >= 0) {
+		clientSetServiceDataPointer(servicePort, (void *)avSource);
+		avSource->setServicePort(servicePort);
+	}
+}
+
+void ViewClient::disableService(int servicePort)
+{
+	clientRemoveService(servicePort);
 }
 
 void ViewClient::appClientReceiveMulticast(int servicePort, SYNTRO_EHEAD *multiCast, int len)
 {
-	int slot;
+	AVSource *avSource = reinterpret_cast<AVSource *>(clientGetServiceDataPointer(servicePort));
 
-	for (slot = 0; slot < m_sources.count(); slot++) {
-		if (servicePort == m_ports.at(slot))
-			break;
-	}
-	if (slot == m_sources.count()) {
-		logWarn(QString("Multicast received to invalid port %1").arg(servicePort));
+	if (avSource) {
+		SYNTRO_RECORD_AVMUX *avmuxHeader = reinterpret_cast<SYNTRO_RECORD_AVMUX *>(multiCast + 1);
+		int recordType = SyntroUtils::convertUC2ToUInt(avmuxHeader->recordHeader.type);
+
+		if (recordType != SYNTRO_RECORD_TYPE_AVMUX) {
+			qDebug() << "Expecting avmux record, received record type" << recordType;
+		}
+		else {
+			avSource->setAVData(servicePort, QByteArray((const char *)avmuxHeader, len));  
+			clientSendMulticastAck(servicePort);
+		}
 	}
 	else {
-		emit newImage(slot, reinterpret_cast<SYNTRO_RECORD_VIDEO *>(multiCast + 1));
-		emit receiveData(slot, len);
-		clientSendMulticastAck(servicePort);
+		logWarn(QString("Multicast received to invalid port %1").arg(servicePort));
 	}
 
 	free(multiCast);
-}
-
-void ViewClient::addStreams()
-{
-	int port;
-	
-	loadStreamSources(SYNTRO_PARAMS_STREAM_SOURCES, SYNTRO_PARAMS_STREAM_SOURCE);
-	for (int i = 0; i < m_sources.count(); i++) {
-		port = clientAddService(SyntroUtils::insertStreamNameInPath(m_sources.at(i), SYNTRO_STREAMNAME_VIDEO), SERVICETYPE_MULTICAST, false);
-		m_ports.append(port);
-		logDebug(QString("Port = %1 count = %2").arg(port).arg(m_ports.size()));
-		emit setServiceName(i, m_sources.at(i));
-	}
-	emit newWindowLayout();
-}
-
-void ViewClient::deleteStreams()
-{
-
-	for (int i = 0; i < m_sources.count(); i++) {
-		clientRemoveService(m_ports.at(i));
-	}
-	m_ports.clear();
-	m_sources.clear();
-}
-
-
-void ViewClient::loadStreamSources(QString group, QString src)
-{
-
-	//	Check to see if the array of sources exists. If not, create
-
-	QSettings *settings = SyntroUtils::getSettings();
-
-	int	nSize = settings->beginReadArray(SYNTRO_PARAMS_STREAM_SOURCES);
-	settings->endArray();
-
-	if (nSize == 0) {
-		settings->beginWriteArray(SYNTRO_PARAMS_STREAM_SOURCES);
-
-		settings->setArrayIndex(0);
-		settings->setValue(SYNTRO_PARAMS_STREAM_SOURCE, "source");
-
-		settings->endArray();
-	}
-
-
-	int count = settings->beginReadArray(group);
-
-	for (int i = 0; i < count; i++) {
-		settings->setArrayIndex(i);
-
-		QString s = settings->value(src).toString();
-		m_sources.append(s);
-	}
-
-	settings->endArray();
-
-	delete settings;
 }

@@ -17,41 +17,35 @@
 //  along with Syntro.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+
 #ifndef VIEWCLIENT_H
 #define VIEWCLIENT_H
 
 #include "SyntroLib.h"
-
-#define	VIEWCLIENT_BACKGROUND_INTERVAL (SYNTRO_CLOCKS_PER_SEC/100)
+#include "AVSource.h"
 
 class ViewClient : public Endpoint
 {
 	Q_OBJECT
 
 public:
-	ViewClient(QObject *parent);
-
-	QStringList streamSources();
+    ViewClient();
 
 public slots:
-	void deleteStreams();
-	void addStreams();
+	void enableService(AVSource *avSource);
+	void disableService(int servicePort);
+	void requestDir();
 
 signals:
-	void newImage(int slot, SYNTRO_RECORD_VIDEO *videoRecord);
-	void newWindowLayout();
-	void receiveData(int slot, int bytes);
-	void setServiceName(int slot, QString name);
+	void clientConnected();
+	void clientClosed();
+	void dirResponse(QStringList directory);
 
 protected:
-	void appClientInit();
-	void appClientReceiveMulticast(int servicePort, SYNTRO_EHEAD *multiCast, int len);
-
-private:
-	void loadStreamSources(QString group, QString src);
-
-	QStringList m_sources;
-	QList <int> m_ports;
+	void appClientConnected();
+	void appClientClosed();
+    void appClientReceiveMulticast(int servicePort, SYNTRO_EHEAD *multiCast, int len);
+    void appClientReceiveDirectory(QStringList);
 };
 
 #endif // VIEWCLIENT_H

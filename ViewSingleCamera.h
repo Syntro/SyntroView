@@ -20,23 +20,22 @@
 #ifndef VIEWSINGLECAMERA_H
 #define VIEWSINGLECAMERA_H
 
-#include <QDialog>
+#include <qdialog.h>
 #include <qlabel.h>
 
 #include "ui_ViewSingleCamera.h"
 #include "SyntroLib.h"
-#include "ImageWindow.h"
+#include "AVSource.h"
 
 class ViewSingleCamera : public QDialog
 {
 	Q_OBJECT
 
 public:
-	ViewSingleCamera(QWidget *parent, QString sourceName);
+	ViewSingleCamera(QWidget *parent, AVSource *avSource);
 
-	void setSourceName(QString sourceName);
-	void newImage(SYNTRO_RECORD_VIDEO *videoRecord);
-	void newImage(VideoFrame frame);
+	void setSource(AVSource *avSource);
+	QString sourceName();
 
 signals:
 	void closed();
@@ -46,16 +45,14 @@ protected:
 	void closeEvent(QCloseEvent *event);
 
 private:
-	void displayImage(VideoFrame *vidFrame);
+	void newImage(QImage image);
 	void saveWindowState();
 	void restoreWindowState();
 
 	Ui::ViewSingleCamera ui;
 
-	int m_displayTimer;
-	int m_timeoutTimer;
-	QMutex m_frameQMutex;
-	QQueue<VideoFrame> m_frameQ;
+	int m_timer;
+	AVSource *m_avSource;
 	qint64 m_lastFrame;
 	QLabel *m_cameraView;
 };

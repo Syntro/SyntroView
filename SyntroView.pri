@@ -1,29 +1,34 @@
 # This file is part of Syntro
 #
-# Copyright (c) 2012 Pansenti, LLC. All rights reserved.
+# Copyright (c) 2013 Pansenti, LLC. All rights reserved.
 #
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-HEADERS += DisplayStats.h \
-    DisplayStatsData.h \
-    ImageWindow.h \
-    ViewClient.h \
-    SyntroView.h \
-    ViewSingleCamera.h \
-    SelectStreamsDlg.h
+HEADERS += AVMuxDecode.h \
+	AVSource.h \
+	DisplayStats.h \
+	DisplayStatsData.h \
+	ImageWindow.h \
+	StreamDialog.h \
+	SyntroView.h \
+	ViewClient.h \
+	ViewSingleCamera.h \
+	AudioOutputDlg.h
 
-SOURCES += DisplayStats.cpp \
-    DisplayStatsData.cpp \
-    ImageWindow.cpp \
-    main.cpp \
-    SyntroView.cpp \
-    ViewClient.cpp \
-    ViewSingleCamera.cpp \
-    SelectStreamsDlg.cpp
+SOURCES += AVMuxDecode.cpp \
+	AVSource.cpp \
+	DisplayStats.cpp \
+	DisplayStatsData.cpp \
+	ImageWindow.cpp \
+	main.cpp \
+	StreamDialog.cpp \
+	SyntroView.cpp \
+	ViewClient.cpp \
+	ViewSingleCamera.cpp \
+	AudioOutputDlg.cpp
 
 FORMS += SyntroView.ui \
-    ViewSingleCamera.ui \
-    DisplayStats.ui 
-
+	ViewSingleCamera.ui \
+	DisplayStats.ui

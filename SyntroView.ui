@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CSyntroViewClass</class>
- <widget class="QMainWindow" name="CSyntroViewClass">
+ <class>SyntroViewClass</class>
+ <widget class="QMainWindow" name="SyntroViewClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CSyntroView</string>
+   <string>SyntroView</string>
   </property>
   <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
@@ -35,7 +35,8 @@
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="actionSelectStreams"/>
+    <addaction name="actionVideoStreams"/>
+    <addaction name="actionAudioSetup"/>
     <addaction name="actionShow_name"/>
     <addaction name="actionShow_date"/>
     <addaction name="actionShow_time"/>
@@ -113,14 +114,19 @@
     <string>Basic setup</string>
    </property>
   </action>
-  <action name="actionSelectStreams">
-   <property name="text">
-    <string>Select streams</string>
-   </property>
-  </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionVideoStreams">
+   <property name="text">
+    <string>Video streams ...</string>
+   </property>
+  </action>
+  <action name="actionAudioSetup">
+   <property name="text">
+    <string>Audio setup</string>
    </property>
   </action>
  </widget>

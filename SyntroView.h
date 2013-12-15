@@ -23,71 +23,113 @@
 #define	PRODUCT_TYPE "SyntroView"
 
 #include <QtGui>
+
 #include "ui_SyntroView.h"
 #include "SyntroLib.h"
+#include "SyntroServer.h"
 #include "DisplayStats.h"
 #include "ViewClient.h"
 #include "ImageWindow.h"
 #include "ViewSingleCamera.h"
-#include "SyntroServer.h"
+
+#if defined(Q_OS_OSX) || defined(Q_OS_WIN)
+#include <QAudioOutput>
+#else
+#include <alsa/asoundlib.h>
+#endif
 
 class SyntroView : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	SyntroView();
+    SyntroView();
 
 public slots:
 	void onStats();
 	void onAbout();
 	void onBasicSetup();
-	void onSelectStreams();
-	void newImage(int slot, SYNTRO_RECORD_VIDEO *videoRecord);
-	void onShowName();
+	void onChooseVideoStreams();
+	void onAudioSetup();
+    void onShowName();
 	void onShowDate();
 	void onShowTime();
 	void onTextColor();
-	void imageMousePress(int id);
-	void imageDoubleClick(int id);
+	void imageMousePress(QString name);
+	void imageDoubleClick(QString name);
 	void singleCameraClosed();
-	void newStreams();
-	void newWindowLayout();
+	void clientConnected();
+	void clientClosed();
+	void dirResponse(QStringList directory);
+
+	void newAudio(QByteArray data, int rate, int channels, int size);
+
+#if defined(Q_OS_OSX) || defined(Q_OS_WIN)
+    void handleAudioOutStateChanged(QAudio::State);
+#endif
 
 signals:
-	void deleteAllServices();
-	void deleteStreams();
-	void addStreams();
+	void requestDir();
+	void enableService(AVSource *avSource);
+	void disableService(int servicePort);
 
 protected:
 	void closeEvent(QCloseEvent *event);
 	void timerEvent(QTimerEvent *event);
 
 private:
-	void layoutGrid(QStringList sourceList);
-	void deleteGrid();
+	bool addAVSource(QString name);
+
+	void layoutGrid();
 	void initStatusBar();
 	void initMenus();
 	void saveWindowState();
 	void restoreWindowState();
+	void startControlServer();
+    QByteArray convertToMac(const QByteArray& audioData);
 
-	Ui::CSyntroViewClass ui;
+	Ui::SyntroViewClass ui;
 
-	SyntroServer *m_server;
+	SyntroServer *m_controlServer;
 	ViewClient *m_client;
-	QGridLayout *m_grid;
+	QStringList m_clientDirectory;
+
+	QList<AVSource *> m_avSources;
 	QList<ImageWindow *> m_windowList;
+	QList<AVSource *> m_delayedDeleteList;
+
 	DisplayStats *m_displayStats;
 	QLabel *m_controlStatus;
+
 	int m_statusTimer;
+	int m_directoryTimer;
+
 	bool m_showName;
 	bool m_showDate;
 	bool m_showTime;
 	QColor m_textColor;
-	int m_singleCameraId;
-	ViewSingleCamera *m_singleCamera;
 
-	int m_enableServicesTimer;
+	ViewSingleCamera *m_singleCamera;
+	int m_selectedSource;
+
+#if defined(Q_OS_OSX) || defined(Q_OS_WIN)
+	QAudioOutput *m_audioOut;
+	QIODevice *m_audioOutDevice;
+#else
+    snd_pcm_t *m_audioOutHandle;
+    bool m_audioOutIsOpen;
+    int m_audioOutSampleSize;
+#endif
+	void audioOutClose();
+
+	bool audioOutOpen(int rate, int channels, int size);
+	bool audioOutWrite(const QByteArray& audioData);
+	bool m_audioEnabled;
+	int m_audioChannels;
+	int m_audioSize;
+	int m_audioRate;
+
+	QString m_logTag;
 };
 
 #endif // SYNTROVIEW_H
