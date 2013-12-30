@@ -20,8 +20,6 @@
 #ifndef AVSOURCE_H
 #define AVSOURCE_H
 
-#include <qmutex.h>
-
 #include "AVMuxDecode.h"
 #include "DisplayStatsData.h"
 
@@ -44,23 +42,22 @@ public:
 	QImage image();
 	qint64 imageTimestamp();
 
-	void setAVData(int servicePort, QByteArray rawData);
+	void setAVMuxData(QByteArray rawData);
 	void stopBackgroundProcessing();
 
 	void enableAudio(bool enable);
 	bool audioEnabled() const;
 
-	DisplayStatsData stats() const;
+	DisplayStatsData *stats();
 
 signals:
 	void newAudio(QByteArray data, int rate, int channels, int size);
+	void newAVMuxData(QByteArray data);
+	void updateStats(int bytes);
 
 public slots:
-	void newImage(int slot, QImage image, qint64 timestamp);
-	void newAudioSamples(int slot, QByteArray data, qint64 timestamp, int rate, int channels, int size);
-
-protected:
-	void timerEvent(QTimerEvent *);
+	void newImage(QImage image, qint64 timestamp);
+	void newAudioSamples(QByteArray data, qint64 timestamp, int rate, int channels, int size);
 
 private:
 	QString m_name;
@@ -68,17 +65,15 @@ private:
 
 	qint64 m_lastUpdate;
 
-	QMutex m_imageMutex;
 	QImage m_image;
 	qint64 m_imageTimestamp;
 
 	bool m_audioEnabled;
 
-	QMutex m_decoderMutex;
 	AVMuxDecode *m_decoder;
 
 	int m_statsTimer;
-	DisplayStatsData m_stats;
+	DisplayStatsData *m_stats;
 };
 
 #endif // AVSOURCE_H

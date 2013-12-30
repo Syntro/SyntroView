@@ -17,9 +17,7 @@
 //  along with Syntro.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "SyntroView.h"
 #include "ViewClient.h"
-#include "AVMuxDecode.h"
 
 #define	VIEWCLIENT_BACKGROUND_INTERVAL (SYNTRO_CLOCKS_PER_SEC/100)
 
@@ -78,7 +76,7 @@ void ViewClient::appClientReceiveMulticast(int servicePort, SYNTRO_EHEAD *multiC
 			qDebug() << "Expecting avmux record, received record type" << recordType;
 		}
 		else {
-			avSource->setAVData(servicePort, QByteArray((const char *)avmuxHeader, len));  
+			avSource->setAVMuxData(QByteArray((const char *)avmuxHeader, len));  
 			clientSendMulticastAck(servicePort);
 		}
 	}
